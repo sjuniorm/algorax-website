@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, MessageCircle } from "lucide-react";
 import { siteConfig } from "@/config/site";
 
 const navLinks = [
@@ -63,15 +63,29 @@ export default function Navbar() {
           </div>
 
           {/* Desktop CTA */}
-          <a
-            href={siteConfig.links.getAccess}
-            className="hidden md:inline-flex text-[13px] font-semibold text-white px-5 py-2 rounded-lg transition-all duration-200 hover:brightness-110"
-            style={{
-              background: `linear-gradient(135deg, ${c.gradientFrom}, ${c.gradientTo})`,
-            }}
-          >
-            Get Access
-          </a>
+          <div className="hidden md:flex items-center gap-2.5">
+            <a
+              href={siteConfig.links.discord}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-[13px] font-semibold text-white px-4 py-2 rounded-lg transition-all duration-200 hover:brightness-110"
+              style={{
+                background: "linear-gradient(135deg, #5865F2, #7983f5)",
+              }}
+            >
+              <MessageCircle size={14} />
+              Discord
+            </a>
+            <a
+              href={siteConfig.links.getAccess}
+              className="inline-flex text-[14px] font-semibold text-white px-6 py-2.5 rounded-lg transition-all duration-200 hover:brightness-110"
+              style={{
+                background: `linear-gradient(135deg, ${c.gradientFrom}, ${c.gradientTo})`,
+              }}
+            >
+              Get Access
+            </a>
+          </div>
 
           {/* Mobile toggle */}
           <button
