@@ -263,7 +263,7 @@ export const siteConfig = {
     items: [
       {
         q: "What happens after I purchase?",
-        a: "You'll get instant access to a setup page with a video walkthrough. Enter your TradingView username, and access is granted automatically to the Invite-Only Scripts tab.",
+        a: "Immediately after checkout you'll receive a confirmation with a link to your personal setup page. Add your TradingView username, and AlgoraX will appear under your Invite-Only Scripts within minutes.",
       },
       {
         q: "Does AlgoraX repaint?",
