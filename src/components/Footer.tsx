@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, MessageCircle } from "lucide-react";
 import { siteConfig } from "@/config/site";
 
 export default function Footer() {
@@ -45,8 +45,13 @@ export default function Footer() {
               href={links.discord}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center px-7 py-3.5 rounded-xl text-sm font-medium text-white/50 hover:text-white border border-white/[0.08] bg-white/[0.03] transition-all duration-300"
+              className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-white font-semibold text-sm transition-all duration-300 hover:brightness-110"
+              style={{
+                background: "linear-gradient(135deg, #5865F2, #7983f5)",
+                boxShadow: "0 0 40px #5865F230",
+              }}
             >
+              <MessageCircle size={16} className="group-hover:scale-110 transition-transform" />
               Join Free Discord
             </a>
           </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, MessageCircle } from "lucide-react";
 import { siteConfig } from "@/config/site";
 
 export default function Hero() {
@@ -128,8 +128,13 @@ export default function Hero() {
             href={links.discord}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-white/50 hover:text-white text-[15px] font-medium transition-all duration-300 border border-white/[0.08] hover:border-white/15 bg-white/[0.03]"
+            className="group inline-flex items-center gap-2 px-7 py-3.5 rounded-xl text-white font-semibold text-[15px] transition-all duration-300 hover:brightness-110"
+            style={{
+              background: "linear-gradient(135deg, #5865F2, #7983f5)",
+              boxShadow: "0 0 40px #5865F230",
+            }}
           >
+            <MessageCircle size={17} className="group-hover:scale-110 transition-transform" />
             Join Free Discord
           </a>
         </motion.div>

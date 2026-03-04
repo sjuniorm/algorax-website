@@ -1,16 +1,60 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { TrendingUp, BarChart3, Zap } from "lucide-react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { siteConfig } from "@/config/site";
 
 export default function Preview() {
   const { preview, colors: c } = siteConfig;
 
-  const bars = [
-    35, 42, 38, 50, 55, 48, 58, 65, 60, 68, 72, 66, 75, 80, 74,
-    82, 88, 84, 90, 78, 85, 92, 88, 94, 90, 86, 82, 88, 92, 96,
-  ];
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState(50);
+  const isDragging = useRef(false);
+
+  const updatePosition = useCallback((clientX: number) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
+    setPosition((x / rect.width) * 100);
+  }, []);
+
+  const onMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    isDragging.current = true;
+    updatePosition(e.clientX);
+  };
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    isDragging.current = true;
+    updatePosition(e.touches[0].clientX);
+  };
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => {
+      if (!isDragging.current) return;
+      updatePosition(e.clientX);
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (!isDragging.current) return;
+      updatePosition(e.touches[0].clientX);
+    };
+    const onUp = () => { isDragging.current = false; };
+
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    window.addEventListener("touchmove", onTouchMove, { passive: true });
+    window.addEventListener("touchend", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onUp);
+    };
+  }, [updatePosition]);
+
+  const beforeImage = preview.beforeImage || "";
+  const afterImage = preview.afterImage || "";
+  const hasImages = beforeImage && afterImage;
 
   return (
     <section
@@ -45,100 +89,132 @@ export default function Preview() {
           </p>
         </motion.div>
 
-        {/* Chart card */}
+        {/* Before / After Slider */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.15 }}
-          className="max-w-3xl mx-auto"
+          className="max-w-4xl mx-auto"
         >
-          {preview.image ? (
-            <div className="rounded-2xl overflow-hidden border border-white/[0.08]">
-              <img src={preview.image} alt="AlgoraX Preview" className="w-full h-auto" />
-            </div>
-          ) : (
-            <div
-              className="rounded-2xl border border-white/[0.08] overflow-hidden"
-              style={{ background: c.bgCard }}
-            >
-              {/* Toolbar */}
-              <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/[0.05]">
-                <div className="flex items-center gap-2.5">
-                  <div className="flex gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full bg-red-400/50" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-yellow-400/50" />
-                    <span className="w-2.5 h-2.5 rounded-full bg-green-400/50" />
-                  </div>
-                  <span className="text-[11px] font-mono" style={{ color: c.textMuted }}>
-                    XAUUSD · 15m · AlgoraX
+          <div
+            ref={containerRef}
+            className="relative rounded-2xl overflow-hidden border border-white/[0.08] select-none"
+            style={{
+              background: c.bgCard,
+              cursor: "col-resize",
+              aspectRatio: hasImages ? undefined : "16/9",
+              minHeight: hasImages ? undefined : "360px",
+            }}
+            onMouseDown={onMouseDown}
+            onTouchStart={onTouchStart}
+          >
+            {hasImages ? (
+              <>
+                {/* AFTER image (bottom layer — full width) */}
+                <img
+                  src={afterImage}
+                  alt="With AlgoraX"
+                  className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                  draggable={false}
+                />
+
+                {/* BEFORE image (top layer — clipped to left side) */}
+                <div
+                  className="absolute inset-0 overflow-hidden pointer-events-none"
+                  style={{ width: `${position}%` }}
+                >
+                  <img
+                    src={beforeImage}
+                    alt="Without AlgoraX"
+                    className="absolute inset-0 w-full h-full object-cover"
+                    style={{ width: containerRef.current?.offsetWidth ?? "100%" }}
+                    draggable={false}
+                  />
+                </div>
+
+                {/* Labels */}
+                <div className="absolute top-4 left-4 pointer-events-none z-10">
+                  <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-black/60 text-white/70 backdrop-blur-sm">
+                    WITHOUT
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <TrendingUp size={13} className="text-emerald-400" />
-                  <span className="text-[11px] font-mono text-emerald-400">+2.8%</span>
-                </div>
-              </div>
-
-              {/* Chart bars */}
-              <div className="relative h-52 sm:h-64 md:h-72 px-5 py-6 flex items-end">
-                <div className="flex items-end gap-[3px] sm:gap-1 h-full w-full">
-                  {bars.map((h, i) => (
-                    <div
-                      key={i}
-                      className="flex-1 rounded-t-sm min-w-[3px]"
-                      style={{
-                        height: `${h}%`,
-                        background:
-                          i === 13 || i === 23
-                            ? `linear-gradient(to top, ${c.gradientFrom}, ${c.gradientTo})`
-                            : h > (bars[i - 1] ?? 0)
-                            ? "rgba(52,211,153,0.35)"
-                            : "rgba(248,113,113,0.25)",
-                      }}
-                    />
-                  ))}
-                </div>
-                {/* Buy marker */}
-                <div className="absolute bottom-[42%] left-[46%]">
+                <div className="absolute top-4 right-4 pointer-events-none z-10">
                   <span
-                    className="text-[9px] font-bold text-white px-1.5 py-0.5 rounded"
+                    className="text-[11px] font-semibold px-2.5 py-1 rounded-full text-white backdrop-blur-sm"
+                    style={{ background: `linear-gradient(135deg, ${c.gradientFrom}cc, ${c.gradientTo}cc)` }}
+                  >
+                    WITH ALGORAX
+                  </span>
+                </div>
+              </>
+            ) : (
+              /* Placeholder when no images are set */
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-8">
+                <div className="text-center">
+                  <div
+                    className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 font-bold text-white text-2xl"
                     style={{ background: `linear-gradient(135deg, ${c.gradientFrom}, ${c.gradientTo})` }}
                   >
-                    BUY
-                  </span>
-                </div>
-                {/* TP marker */}
-                <div className="absolute top-[18%] right-[24%]">
-                  <span className="text-[9px] font-bold text-white px-1.5 py-0.5 rounded bg-emerald-500/80">
-                    TP
-                  </span>
-                </div>
-              </div>
-
-              {/* Bottom stats */}
-              <div className="grid grid-cols-3 border-t border-white/[0.05]">
-                {[
-                  { icon: TrendingUp, label: "Win Rate", val: "73%" },
-                  { icon: BarChart3, label: "Avg R:R", val: "1:2.4" },
-                  { icon: Zap, label: "Signals/Day", val: "12" },
-                ].map((s, i) => (
-                  <div
-                    key={i}
-                    className={`flex items-center justify-center gap-2 py-3.5 ${
-                      i < 2 ? "border-r border-white/[0.05]" : ""
-                    }`}
-                  >
-                    <s.icon size={13} style={{ color: c.accentLight }} />
-                    <div>
-                      <p className="text-[9px] uppercase tracking-wider" style={{ color: c.textMuted }}>{s.label}</p>
-                      <p className="text-xs font-semibold text-white">{s.val}</p>
-                    </div>
+                    A
                   </div>
-                ))}
+                  <p className="text-white font-semibold mb-1">Before / After Comparison</p>
+                  <p className="text-sm max-w-sm" style={{ color: c.textMuted }}>
+                    Add your chart screenshots to see the slider in action.
+                    See the Customization Guide for instructions.
+                  </p>
+                </div>
+                {/* Mock slider hint */}
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="text-xs px-3 py-1 rounded-full bg-white/[0.05] border border-white/[0.08]" style={{ color: c.textMuted }}>
+                    WITHOUT
+                  </span>
+                  <div
+                    className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center shadow-lg"
+                    style={{ background: `linear-gradient(135deg, ${c.gradientFrom}, ${c.gradientTo})` }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <path d="M4 7H10M4 7L2 5M4 7L2 9M10 7L12 5M10 7L12 9" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  <span
+                    className="text-xs px-3 py-1 rounded-full text-white"
+                    style={{ background: `linear-gradient(135deg, ${c.gradientFrom}80, ${c.gradientTo}80)` }}
+                  >
+                    WITH ALGORAX
+                  </span>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+
+            {/* Divider line */}
+            {hasImages && (
+              <div
+                className="absolute top-0 bottom-0 z-20 pointer-events-none"
+                style={{ left: `${position}%` }}
+              >
+                <div className="absolute inset-y-0 -translate-x-1/2 w-[2px] bg-white/80 shadow-[0_0_8px_rgba(255,255,255,0.5)]" />
+                {/* Handle */}
+                <div
+                  className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 w-9 h-9 rounded-full border-2 border-white flex items-center justify-center shadow-xl pointer-events-auto cursor-col-resize"
+                  style={{ background: `linear-gradient(135deg, ${c.gradientFrom}, ${c.gradientTo})` }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M5 8H11M5 8L3 6M5 8L3 10M11 8L13 6M11 8L13 10" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+            )}
+
+            {/* Drag hint (fades after first interaction) */}
+            {hasImages && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 pointer-events-none z-10">
+                <span className="text-[10px] font-medium px-3 py-1 rounded-full bg-black/50 text-white/50 backdrop-blur-sm">
+                  Drag to compare
+                </span>
+              </div>
+            )}
+          </div>
         </motion.div>
       </div>
     </section>

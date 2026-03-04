@@ -50,14 +50,16 @@ export const siteConfig = {
     ],
   },
 
-  // ── SIGNAL PREVIEW (chart screenshot area) ─────────────────
+  // ── SIGNAL PREVIEW (before/after comparison slider) ────────
   preview: {
     label: "SEE IT LIVE",
     title: "Every Signal. Right on Your Chart.",
     subtitle:
       "Real-time buy/sell entries, dynamic stop-loss, and auto take-profit levels — displayed the moment they appear.",
-    // Replace with your own chart screenshot URL
-    image: "",
+    // BEFORE image: your chart WITHOUT AlgoraX (left side of slider)
+    beforeImage: "",
+    // AFTER image: your chart WITH AlgoraX signals visible (right side of slider)
+    afterImage: "",
   },
 
   // ── TRADING MODES (Zynalgo-inspired dual cards) ────────────

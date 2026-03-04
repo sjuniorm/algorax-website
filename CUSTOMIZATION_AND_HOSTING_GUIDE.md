@@ -125,16 +125,35 @@ hero: {
 }
 ```
 
-**Chart preview screenshot (the big screenshot section):**
+**Before / After comparison slider (the chart preview section):**
+
+The preview section shows a draggable slider that lets visitors compare a chart WITHOUT your indicator (left) versus WITH your indicator signals visible (right).
+
 ```ts
 preview: {
-  image: "/chart-screenshot.png",
+  beforeImage: "/chart-before.png",   // ← chart WITHOUT AlgoraX (left side)
+  afterImage:  "/chart-after.png",    // ← chart WITH AlgoraX signals (right side)
 }
 ```
 
-**To use only an image (no video):** leave `backgroundVideo: ""` and only fill in `backgroundImage`.
+**How to set it up:**
+1. Take a screenshot of your TradingView chart **without** the indicator active → save as `chart-before.png`
+2. Take a screenshot of the **same chart** with AlgoraX signals visible → save as `chart-after.png`
+3. Drag both files into the `public/` folder
+4. Set the paths in `site.ts` as shown above
+5. Save — the slider will appear immediately with your images
 
-**To use only a gradient background:** leave both as `""`.
+> **Tips for great comparison images:**
+> - Use the exact same chart (same asset, same timeframe, same candles) for both screenshots so the comparison is clear
+> - Crop both screenshots to the same dimensions before saving
+> - Highlight a BUY signal with the TP/SL levels clearly visible in the "after" image
+> - Use `.png` for sharp chart lines, ideally under 500KB (compress free at [squoosh.app](https://squoosh.app))
+
+If both fields are left as `""`, a styled placeholder with instructions is shown instead.
+
+**To use only an image (no video) for the hero background:** leave `backgroundVideo: ""` and only fill in `backgroundImage`.
+
+**To use only a gradient background:** leave both hero fields as `""`.
 
 ---
 
@@ -344,7 +363,7 @@ Once hosted on Vercel + GitHub, publishing an update is 3 commands:
 | Change any text, prices, reviews, FAQ | `src/config/site.ts` |
 | Change colors/gradient theme | `src/config/site.ts` → `colors` |
 | Add hero image or video | Put file in `public/`, set path in `site.ts` → `hero` |
-| Add chart screenshot | Put file in `public/`, set path in `site.ts` → `preview.image` |
+| Add before/after slider images | Put both files in `public/`, set paths in `site.ts` → `preview.beforeImage` and `preview.afterImage` |
 | Change Discord / payment links | `src/config/site.ts` → `links` + `pricing.plans[].ctaLink` |
 | Change navbar links | `src/components/Navbar.tsx` → `navLinks` |
 | Change page title & SEO | `src/app/layout.tsx` → `metadata` |
